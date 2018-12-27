@@ -77,6 +77,8 @@ public class BaseConfig extends JFinalConfig{
     public void configPlugin(Plugins me) {
         ValidatePlugin validatePlugin = new ValidatePlugin();
         me.add(validatePlugin);
+        RequestAdivcePlugin requestAdivcePlugin = new RequestAdivcePlugin();
+        me.add(requestAdivcePlugin);
 
     }
 
