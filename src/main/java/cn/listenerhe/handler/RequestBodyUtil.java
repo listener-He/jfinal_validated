@@ -1,8 +1,10 @@
 package cn.listenerhe.handler;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import cn.listenerhe.annotation.CrossOrigin;
 import com.jfinal.core.Action;
 import com.jfinal.core.paragetter.ParaGetter;
 import com.jfinal.kit.HttpKit;
@@ -70,7 +72,46 @@ public final class RequestBodyUtil {
         }
 
 
+    }
 
+    /**
+     *     配置跨域相关
+     * @param action
+     * @param request
+     * @param response
+     */
+    public static  boolean  configurationCrossOrigin(Action action,HttpServletRequest request ,HttpServletResponse response){
+        if(action == null || request == null || response == null)return false;
+        CrossOrigin annotation = action.getMethod().getAnnotation(CrossOrigin.class);
+        if (annotation == null)//当当前action没有配置CrossOrigin注解时，使用Controller上的CrossOrigin注解
+            annotation = action.getControllerClass().getAnnotation(CrossOrigin.class);
+
+        if (annotation != null) {
+            //获取客户端的Headers
+            String header = request.getHeader("Access-Control-Request-Headers");
+            //如果没有设置指定的Headers 那么就使用客户端的Headers
+            if(annotation.Headers().length ==1 && "*".equals(annotation.Headers()[0])){
+                //发现对于火狐不能太兼容,*号并不能解析。默认设置为当前客户端的Headers
+            }else{
+                header = lengthEQ01(annotation.Headers());
+            }
+            response.setHeader("Access-Control-Allow-Origin", lengthEQ01(annotation.origins()));
+            response.setHeader("Access-Control-Allow-Methods", lengthEQ01(annotation.method()));
+            response.setHeader("Access-Control-Max-Age", annotation.maxAge() < 0 ? "3600" : annotation.maxAge() + "");
+            response.setHeader("Access-Control-Allow-Headers", header);
+            response.setHeader("Access-Control-Allow-Credentials", annotation.credentials() + "");
+        }
+
+        //跨域 OPTIONS请求响应空
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())){
+            //action.getControllerClass().newInstance().renderNull();
+            return false;
+        }
+        return true;
+    }
+
+    private static String lengthEQ01(String[] strs) {
+        return strs.length >= 1 ? StrUtil.join(",", strs) : strs[0];
     }
 
 
