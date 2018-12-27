@@ -44,10 +44,6 @@ public class RequestMianHandler extends Handler {
 	@Override
 	public void handle(String target, HttpServletRequest request, HttpServletResponse response, boolean[] isHandled) {
 
-
-
-
-
 		isHandled[0] = false;
 		String[] urlPara = {null};
 

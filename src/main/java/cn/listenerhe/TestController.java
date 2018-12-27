@@ -7,6 +7,8 @@ import cn.listenerhe.validation.annotation.Size;
 import cn.listenerhe.validation.annotation.Validated;
 import com.jfinal.core.Controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * @Auther: Administrator
@@ -25,4 +27,8 @@ public class TestController extends Controller{
     }
 
 
+    public void error(){
+        System.out.println(getRequest().getRequestURI());
+        renderJson("xx");
+    }
 }
