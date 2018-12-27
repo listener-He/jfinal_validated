@@ -19,11 +19,6 @@ import java.lang.annotation.Target;
 public @interface RequestBody {
      RequestMethod[] mtrhod() default {RequestMethod.POST,RequestMethod.GET}; //请求方法
 
-     /**
-      * 忽略参数
-      *
-      **/
-     String[] lose() default "";
 
      //只解析特定的参数，其余参数则为 requestBody. + key
     // String analysisParam() default "";

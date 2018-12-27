@@ -1,5 +1,7 @@
 package cn.listenerhe.core.annotation;
 
+import cn.listenerhe.core.utils.RequestMethod;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +20,7 @@ public @interface CrossOrigin {
 	//给指定的请求头授权
 	String[] Headers()default {"*"};
 	
-	String[] method() default {"GET,POST,PUT,OPTIONS"};
+	RequestMethod[] method() default {RequestMethod.GET,RequestMethod.POST};
 	//是否允许携带证书（如：cookie）
 	boolean credentials() default false;
 	

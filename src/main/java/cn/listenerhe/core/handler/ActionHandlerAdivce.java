@@ -118,9 +118,15 @@ public class ActionHandlerAdivce extends ActionHandler {
         }
 
         /**跨域在前*/
-        if(!RequestBodyUtil.configurationCrossOrigin(action,request,response)){
+        Boolean aBoolean = RequestBodyUtil.configurationCrossOrigin(action, request, response);
+        if(aBoolean == null){
             renderManager.getRenderFactory().getJsonRender(new ErrorResult<>(Code.REST_ERROR,"请求错误")).setContext(request,response).render();
             return;
+        }else{
+            if(!aBoolean){
+                renderManager.getRenderFactory().getNullRender().setContext(request,response).render();
+                return;
+            }
         }
         RequestBodyUtil.resolutionBody(action,request);//解析body
 
@@ -177,7 +183,7 @@ public class ActionHandlerAdivce extends ActionHandler {
             }
             render.setContext(request, response, action.getViewPath()).render();
         } catch (Exception e) {
-
+            boolean[] temp = {true};
             /**异常处理*/
             List<IErrorRequestRequestAdvice> errorAdvice = getErrorAdvice(e.getClass());
             if(CollUtil.isNotEmpty(errorAdvice)){
@@ -189,28 +195,32 @@ public class ActionHandlerAdivce extends ActionHandler {
                             Render render1 = iErrorRequestRequestAdvice.laterBodyWrite(e, renderManager, urlPara, action, code);
                             if(render1 != null){
                                  render1.setContext(request,response).render();
+                                temp[0] = false;
                                  return;
                             }
                         }
                     }
                 });
-            }else{
-                //TODO 异常响应不处理
-                if(e instanceof RenderException){
-                    if (log.isErrorEnabled()) {
-                        String qs = request.getQueryString();
-                        log.error(qs == null ? target : target + "?" + qs, e);
-                    }
-                }else if(e instanceof ActionException){
-                    handleActionException(target, request, response, action, (ActionException)e);
-                }else{
-                    if (log.isErrorEnabled()) {
-                        String qs = request.getQueryString();
-                        log.error(qs == null ? target : target + "?" + qs, e);
-                    }
-                    renderManager.getRenderFactory().getErrorRender(500).setContext(request, response, action.getViewPath()).render();
-                }
             }
+                if(!temp[0]){
+                    //TODO 异常响应不处理
+                    if(e instanceof RenderException){
+                        if (log.isErrorEnabled()) {
+                            String qs = request.getQueryString();
+                            log.error(qs == null ? target : target + "?" + qs, e);
+                        }
+                    }else if(e instanceof ActionException){
+                        handleActionException(target, request, response, action, (ActionException)e);
+                    }else{
+                        if (log.isErrorEnabled()) {
+                            String qs = request.getQueryString();
+                            log.error(qs == null ? target : target + "?" + qs, e);
+                        }
+                        renderManager.getRenderFactory().getErrorRender(500).setContext(request, response, action.getViewPath()).render();
+                    }
+                }
+
+
 
         } finally {
             if (controller != null) {

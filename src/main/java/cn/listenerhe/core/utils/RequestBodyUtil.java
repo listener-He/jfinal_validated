@@ -58,7 +58,6 @@ public final class RequestBodyUtil {
         if(json == null || json.isEmpty())return;
         Set<String> strings = json.keySet();
 
-        List<String> lose = Arrays.asList(body.lose());
 
         Parameter[] parameters = action.getMethod().getParameters();
         for (int i = 0; i < parameters.length; i++) {
@@ -81,8 +80,8 @@ public final class RequestBodyUtil {
      * @param request
      * @param response
      */
-    public static  boolean  configurationCrossOrigin(Action action,HttpServletRequest request ,HttpServletResponse response){
-        if(action == null || request == null || response == null)return false;
+    public static  Boolean  configurationCrossOrigin(Action action,HttpServletRequest request ,HttpServletResponse response){
+        if(action == null || request == null || response == null)return null;
         CrossOrigin annotation = action.getMethod().getAnnotation(CrossOrigin.class);
         if (annotation == null)//当当前action没有配置CrossOrigin注解时，使用Controller上的CrossOrigin注解
             annotation = action.getControllerClass().getAnnotation(CrossOrigin.class);
@@ -97,7 +96,15 @@ public final class RequestBodyUtil {
                 header = lengthEQ01(annotation.Headers());
             }
             response.setHeader("Access-Control-Allow-Origin", lengthEQ01(annotation.origins()));
-            response.setHeader("Access-Control-Allow-Methods", lengthEQ01(annotation.method()));
+            RequestMethod[] method = annotation.method();
+            StringBuilder sb = new StringBuilder();
+            for (RequestMethod requestMethod : method) {
+                sb.append(requestMethod.getMethod()).append(",");
+            }
+            if(sb.length() > 1){
+                sb =  sb.deleteCharAt(sb.length()-1);
+            }
+            response.setHeader("Access-Control-Allow-Methods", sb.toString());
             response.setHeader("Access-Control-Max-Age", annotation.maxAge() < 0 ? "3600" : annotation.maxAge() + "");
             response.setHeader("Access-Control-Allow-Headers", header);
             response.setHeader("Access-Control-Allow-Credentials", annotation.credentials() + "");
@@ -105,7 +112,6 @@ public final class RequestBodyUtil {
 
         //跨域 OPTIONS请求响应空
         if("OPTIONS".equalsIgnoreCase(request.getMethod())){
-            //action.getControllerClass().newInstance().renderNull();
             return false;
         }
         return true;

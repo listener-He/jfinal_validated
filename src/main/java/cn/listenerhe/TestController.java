@@ -1,6 +1,7 @@
 package cn.listenerhe;
 
 import cn.listenerhe.core.annotation.ControllerKey;
+import cn.listenerhe.core.annotation.CrossOrigin;
 import cn.listenerhe.core.annotation.RequestBody;
 import cn.listenerhe.core.annotation.validation.NotBlank;
 import cn.listenerhe.core.annotation.validation.Size;
@@ -20,6 +21,7 @@ public class TestController extends Controller{
 
     @Validated
     @RequestBody
+    @CrossOrigin
     public void index(@NotBlank(msg = "不能为空啊!!!")  @Size(min = 5,msg = "长度不要小于5啊!!!") String name){
         renderJson(name);
     }
