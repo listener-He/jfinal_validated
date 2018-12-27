@@ -1,7 +1,9 @@
 package cn.listenerhe.advice;
 
+import cn.hutool.json.JSONObject;
 import com.jfinal.core.Action;
 import com.jfinal.core.Controller;
+import com.jfinal.kit.StrKit;
 import com.jfinal.render.JsonRender;
 import com.jfinal.render.Render;
 import com.jfinal.render.RenderManager;
@@ -31,7 +33,17 @@ public class RequestJsonAdvice implements IResponseAdvice<JsonRender> {
      */
     @Override
     public boolean supports(Class<? extends Render> clazz, Render jsonRender) {
-        return jsonRender != null && jsonRender != null && jsonRender.getClass().equals(clazz);
+        boolean b = jsonRender != null && jsonRender != null && jsonRender.getClass().equals(clazz);
+        if(b){
+            JsonRender jsonRender1 = (JsonRender) jsonRender;
+            if(StrKit.notBlank(jsonRender1.getJsonText())){
+                JSONObject object = new JSONObject(jsonRender1.getJsonText());
+                if(null == object.getInt("code")){
+                    b = false;
+                }
+            }
+        }
+        return b;
     }
 
     /**
