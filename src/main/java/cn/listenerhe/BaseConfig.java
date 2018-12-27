@@ -1,8 +1,8 @@
 package cn.listenerhe;
 
 import cn.hutool.core.util.ClassUtil;
+import cn.listenerhe.handler.ActionHandlerAdivce;
 import cn.listenerhe.handler.ControllerKey;
-import cn.listenerhe.handler.RequestMianHandler;
 import cn.listenerhe.validation.ValidateAPIInterceptor;
 import com.jfinal.config.*;
 import com.jfinal.core.Controller;
@@ -102,7 +102,7 @@ public class BaseConfig extends JFinalConfig{
      * 配置处理器 如在规模开发中  定制Handler来实现自定义的url映射
      */
     public void configHandler(Handlers me) {
-        me.add(new RequestMianHandler());
+        me.setActionHandler(new ActionHandlerAdivce());
     }
 
 
