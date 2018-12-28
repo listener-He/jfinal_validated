@@ -6,11 +6,14 @@ import cn.listenerhe.core.plugin.ValidatePlugin;
 import cn.listenerhe.core.handler.ActionHandlerAdivce;
 import cn.listenerhe.core.annotation.ControllerKey;
 import cn.listenerhe.core.interceptor.ValidateAPIInterceptor;
+import cn.listenerhe.model._MappingKit;
 import com.jfinal.config.*;
 import com.jfinal.core.Controller;
 import com.jfinal.core.JFinal;
 import com.jfinal.kit.PropKit;
 import com.jfinal.kit.StrKit;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.druid.DruidPlugin;
 import com.jfinal.template.Engine;
 
 import java.util.Set;
@@ -71,12 +74,25 @@ public class BaseConfig extends JFinalConfig{
     public void configEngine(Engine me) {
     }
 
-
+    //方便给逆向类使用
+    public static DruidPlugin createDruidPlugin() {
+        return new DruidPlugin(PropKit.get("jdbcUrl"), PropKit.get("user"), PropKit.get("password"));
+    }
 
     /**
      * 配置插件
      */
     public void configPlugin(Plugins me) {
+        // 配置数据库连接池插件
+        DruidPlugin druidPlugin = createDruidPlugin();
+        me.add(druidPlugin);
+
+        // 配置ActiveRecord插件
+        ActiveRecordPlugin arp = new ActiveRecordPlugin(druidPlugin);
+        // 所有映射在 MappingKit 中自动化搞定
+        _MappingKit.mapping(arp);
+        me.add(arp);
+
         ValidatePlugin validatePlugin = new ValidatePlugin();
         me.add(validatePlugin);
         RequestAdivcePlugin requestAdivcePlugin = new RequestAdivcePlugin();

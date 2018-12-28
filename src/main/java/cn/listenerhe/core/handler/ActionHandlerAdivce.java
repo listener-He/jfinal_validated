@@ -10,18 +10,13 @@ import cn.listenerhe.core.result.ErrorResult;
 import cn.listenerhe.core.utils.RequestBodyUtil;
 import com.jfinal.aop.Invocation;
 import com.jfinal.core.*;
-import com.jfinal.kit.HttpKit;
 import com.jfinal.log.Log;
 import com.jfinal.render.Render;
 import com.jfinal.render.RenderException;
-import com.jfinal.validate.Validator;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -47,7 +42,7 @@ public class ActionHandlerAdivce extends ActionHandler {
      */
     private List<IErrorRequestRequestAdvice> getErrorAdvice(Class<? extends Throwable> aClass){
         if(aClass == null){
-             return null;
+            return null;
         }
 
         List<Class<? extends Throwable>> temp = new ArrayList<>();
@@ -153,7 +148,7 @@ public class ActionHandlerAdivce extends ActionHandler {
                 new Invocation(action, controller).invoke();
             }
 
-             render = controller.getRender();
+            render = controller.getRender();
             if (render instanceof ForwardActionRender) {
                 String actionUrl = ((ForwardActionRender)render).getActionUrl();
                 if (target.equals(actionUrl)) {
@@ -188,24 +183,24 @@ public class ActionHandlerAdivce extends ActionHandler {
                     }
                 }
             }
-                if(temp){
-                    //TODO 异常响应不处理
-                    if(e instanceof RenderException){
-                        if (log.isErrorEnabled()) {
-                            String qs = request.getQueryString();
-                            log.error(qs == null ? target : target + "?" + qs, e);
-                        }
-                    }else if(e instanceof ActionException){
-                        handleActionException(target, request, response, action, (ActionException)e);
-                    }else{
-                        if (log.isErrorEnabled()) {
-                            String qs = request.getQueryString();
-                            log.error(qs == null ? target : target + "?" + qs, e);
-                        }
-                        renderManager.getRenderFactory().getErrorRender(500).setContext(request, response, action.getViewPath()).render();
+            if(temp){
+                //TODO 异常响应不处理
+                if(e instanceof RenderException){
+                    if (log.isErrorEnabled()) {
+                        String qs = request.getQueryString();
+                        log.error(qs == null ? target : target + "?" + qs, e);
                     }
-                    return;
+                }else if(e instanceof ActionException){
+                    handleActionException(target, request, response, action, (ActionException)e);
+                }else{
+                    if (log.isErrorEnabled()) {
+                        String qs = request.getQueryString();
+                        log.error(qs == null ? target : target + "?" + qs, e);
+                    }
+                    renderManager.getRenderFactory().getErrorRender(500).setContext(request, response, action.getViewPath()).render();
                 }
+                return;
+            }
         } finally {
             if (controller != null) {
                 CPI._clear_(controller);

@@ -6,6 +6,10 @@ import cn.listenerhe.core.annotation.RequestBody;
 import cn.listenerhe.core.annotation.validation.NotBlank;
 import cn.listenerhe.core.annotation.validation.Size;
 import cn.listenerhe.core.annotation.validation.Validated;
+import cn.listenerhe.core.sql.BaseDb;
+import cn.listenerhe.core.sql.ModelExampleSql;
+import cn.listenerhe.model.Poems;
+import com.jfinal.aop.Inject;
 import com.jfinal.core.Controller;
 
 
@@ -17,18 +21,16 @@ import com.jfinal.core.Controller;
 @ControllerKey("/user")
 public class TestController extends Controller{
 
-
+    @Inject
+    public PoemsDb poemsBaseDb;
 
     @Validated
-    @RequestBody
     @CrossOrigin
     public void index(@NotBlank(msg = "不能为空啊!!!")  String name){
-        renderJson(name);
+        ModelExampleSql modelExampleSql = new ModelExampleSql(Poems.class);
+        ModelExampleSql.Criteria criteria = modelExampleSql.createCriteria();
+        criteria.andLike("author","%和%");
+        renderJson(poemsBaseDb.pageByExample(1,5,modelExampleSql));
     }
 
-
-    public void error(){
-        System.out.println(getRequest().getRequestURI());
-        renderJson("xx");
-    }
 }

@@ -39,6 +39,21 @@
 
     <dependencies>
 
+        <!-- MySql -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.32</version>
+        </dependency>
+
+        <!-- 连接池 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+
+
         <!--ehcache 缓存支持-->
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -110,28 +125,15 @@
     <build>
         <plugins>
 
-
-
+            <!-- maven 编译插件, 指定打包后的jar的运行环境运行为1.8 -->
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>8.1.8.v20121106</version>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <stopKey>stop</stopKey>
-                    <stopPort>5599</stopPort>
-                    <webAppConfig>
-                        <contextPath>/</contextPath>
-                    </webAppConfig>
-                    <scanIntervalSeconds>5</scanIntervalSeconds>
-                    <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>80</port>
-                            <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                    </connectors>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>utf8</encoding>
                 </configuration>
             </plugin>
-
 
             <!-- 资源文件拷贝插件 -->
             <plugin>
@@ -161,27 +163,16 @@
         </plugins>
 
 
-        <resources>
-            <!-- 使用Maven部署的时候，xml和properties配置文件也一起部署到Tomcat -->
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-            <!-- 默认是以下配置 -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.*</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-        </resources>
+    <resources>
+        <!-- 默认是以下配置 -->
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.*</include>
+            </includes>
+            <filtering>false</filtering>
+        </resource>
+    </resources>
+
     </build>
-
-
-
 </project>
