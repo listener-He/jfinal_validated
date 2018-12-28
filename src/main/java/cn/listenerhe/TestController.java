@@ -22,7 +22,7 @@ public class TestController extends Controller{
     @Validated
     @RequestBody
     @CrossOrigin
-    public void index(@NotBlank(msg = "不能为空啊!!!")  @Size(min = 5,msg = "长度不要小于5啊!!!") String name){
+    public void index(@NotBlank(msg = "不能为空啊!!!")  String name){
         renderJson(name);
     }
 

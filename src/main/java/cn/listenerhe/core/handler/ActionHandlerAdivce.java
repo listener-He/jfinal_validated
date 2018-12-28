@@ -131,6 +131,7 @@ public class ActionHandlerAdivce extends ActionHandler {
         RequestBodyUtil.resolutionBody(action,request);//解析body
 
         Controller controller = null;
+        Render render = null;
         try {
             controller = controllerFactory.getController(action.getControllerClass());
             if (injectDependency) {com.jfinal.aop.Aop.inject(controller);}
@@ -150,7 +151,7 @@ public class ActionHandlerAdivce extends ActionHandler {
                 new Invocation(action, controller).invoke();
             }
 
-            Render render = controller.getRender();
+             render = controller.getRender();
             if (render instanceof ForwardActionRender) {
                 String actionUrl = ((ForwardActionRender)render).getActionUrl();
                 if (target.equals(actionUrl)) {
@@ -166,43 +167,26 @@ public class ActionHandlerAdivce extends ActionHandler {
             }
 
 
-            //TODO 响应前 执行响应处理链
-            if(MapUtil.isNotEmpty(responseAdviceMap)){
-                List<? extends IResponseAdvice<? extends Render>> iResponseAdvices = responseAdviceMap.get(render.getClass());
-                if(CollUtil.isNotEmpty(iResponseAdvices)){
-                    for (IResponseAdvice<? extends Render> iResponseAdvice : iResponseAdvices) {
-                        if(iResponseAdvice.supports(render.getClass(),render)){
-                            Render beforeRender = iResponseAdvice.beforeBodyWrite(render, renderManager, urlPara, action, controller);
-                            if(beforeRender == null){
-                                throw new ResponseAdviceExceptor("响应处理异常:"+iResponseAdvice.getClass()+" beforeBodyWrite 方法不能返回 null.");
-                            }
-                            render = beforeRender;
-                        }
-                    }
-                }
-            }
-            render.setContext(request, response, action.getViewPath()).render();
+
         } catch (Exception e) {
-            boolean[] temp = {true};
+            boolean temp = true;
             /**异常处理*/
             List<IErrorRequestRequestAdvice> errorAdvice = getErrorAdvice(e.getClass());
             if(CollUtil.isNotEmpty(errorAdvice)){
                 int code = e instanceof RenderException ?404:(e instanceof ActionException ?((ActionException)e).getErrorCode():500);
-                errorAdvice.forEach(new Consumer<IErrorRequestRequestAdvice>() {
-                    @Override
-                    public void accept(IErrorRequestRequestAdvice iErrorRequestRequestAdvice) {
-                        if(iErrorRequestRequestAdvice.supports(e)){
-                            Render render1 = iErrorRequestRequestAdvice.laterBodyWrite(e, renderManager, urlPara, action, code);
-                            if(render1 != null){
-                                 render1.setContext(request,response).render();
-                                temp[0] = false;
-                                 return;
-                            }
+                for (IErrorRequestRequestAdvice iErrorRequestRequestAdvice : errorAdvice) {
+                    if(iErrorRequestRequestAdvice.supports(e)){
+                        Render render1 = iErrorRequestRequestAdvice.laterBodyWrite(e, renderManager, urlPara, action, code);
+                        if(render1 != null){
+                            render = render1;
+                            //render1.setContext(request,response).render();
+                            temp = false;
+                            break;
                         }
                     }
-                });
+                }
             }
-                if(!temp[0]){
+                if(temp){
                     //TODO 异常响应不处理
                     if(e instanceof RenderException){
                         if (log.isErrorEnabled()) {
@@ -218,15 +202,29 @@ public class ActionHandlerAdivce extends ActionHandler {
                         }
                         renderManager.getRenderFactory().getErrorRender(500).setContext(request, response, action.getViewPath()).render();
                     }
+                    return;
                 }
-
-
-
         } finally {
             if (controller != null) {
                 CPI._clear_(controller);
             }
         }
+        //TODO 响应前 执行响应处理链
+        if(MapUtil.isNotEmpty(responseAdviceMap)){
+            List<? extends IResponseAdvice<? extends Render>> iResponseAdvices = responseAdviceMap.get(render.getClass());
+            if(CollUtil.isNotEmpty(iResponseAdvices)){
+                for (IResponseAdvice<? extends Render> iResponseAdvice : iResponseAdvices) {
+                    if(iResponseAdvice.supports(render.getClass(),render)){
+                        Render beforeRender = iResponseAdvice.beforeBodyWrite(render, renderManager, urlPara, action, controller);
+                        if(beforeRender == null){
+                            throw new ResponseAdviceExceptor("响应处理异常:"+iResponseAdvice.getClass()+" beforeBodyWrite 方法不能返回 null.");
+                        }
+                        render = beforeRender;
+                    }
+                }
+            }
+        }
+        render.setContext(request, response, action.getViewPath()).render();
     }
 
 
