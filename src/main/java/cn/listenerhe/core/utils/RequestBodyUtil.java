@@ -1,7 +1,6 @@
 package cn.listenerhe.core.utils;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONNull;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -16,10 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.lang.reflect.Parameter;
-import java.nio.charset.Charset;
-import java.util.*;
 
 /**
  *   request请求相关工具类
@@ -30,8 +26,6 @@ import java.util.*;
 public final class RequestBodyUtil {
 
 
-    /** 日志 */
-    private static Logger logger = LoggerFactory.getLogger(RequestBodyUtil.class);
 
     /**
      *    配置body 解析
@@ -39,27 +33,38 @@ public final class RequestBodyUtil {
      * @param request
      */
     public static void resolutionBody(Action action, HttpServletRequest request){
-        if(action == null)return;
+        if(action == null){
+            return;
+        }
         //获取当前请求的注解
         RequestBody body = action.getMethod().getAnnotation(RequestBody.class);
-        if (body == null)//当当前action没有配置CrossOrigin注解时，使用Controller上的CrossOrigin注解
-                body = action.getControllerClass().getAnnotation(RequestBody.class);
-        if(body == null)return;
+        if (body == null){
+            body = action.getControllerClass().getAnnotation(RequestBody.class);
+        }
+        if(body == null){
+            return;
+        }
 
         boolean isMtrhod = false; //获取注解配置的请求方法
         for(RequestMethod rm:body.mtrhod()){
                 if(rm.getMethod().equalsIgnoreCase(request.getMethod()))isMtrhod = true;
         }
-        if(!isMtrhod)return;
+        if(!isMtrhod){
+            return;
+        }
         String readData = HttpKit.readData(request); //解析body
-        if(StrKit.isBlank(readData))return;
-        if(!JSONUtil.isJson(readData))return;
+        if(StrKit.isBlank(readData)){
+            return;
+        }
+        if(!JSONUtil.isJson(readData)){
+            return;
+        }
 
         JSONObject json = new JSONObject(readData);// 转换成 map
 
-        if(json == null || json.isEmpty())return;
-        Set<String> strings = json.keySet();
-
+        if(json == null || json.isEmpty()){
+            return;
+        }
 
         Parameter[] parameters = action.getMethod().getParameters();
         for (int i = 0; i < parameters.length; i++) {
@@ -83,7 +88,9 @@ public final class RequestBodyUtil {
      * @param response
      */
     public static  Boolean  configurationCrossOrigin(Action action,HttpServletRequest request ,HttpServletResponse response){
-        if(action == null || request == null || response == null)return null;
+        if(action == null || request == null || response == null){
+            return null;
+        }
         CrossOrigin annotation = action.getMethod().getAnnotation(CrossOrigin.class);
         if (annotation == null)//当当前action没有配置CrossOrigin注解时，使用Controller上的CrossOrigin注解
             annotation = action.getControllerClass().getAnnotation(CrossOrigin.class);
