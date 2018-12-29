@@ -15,16 +15,13 @@ import java.util.function.Consumer;
 /**
  *
  * @ClassName: ModelExampleSql
- * @Description: Model辅助类 用户拼接sql语句
- * 						只支持单表操作 没有特殊函数，可自定义  Date只支持 Date、DateTime、Time 不支持月周日等等
- * 					其他支持类型：var varchar,TEXT,,Integer
+ * @Description: 拼接sql语句
  * @author hehh
  * @date 2018年6月5日 下午5:12:40
  *
  */
 @SuppressWarnings("all")
-
-public final class ModelExampleSql {
+public final class ModelExample {
 	/*     -------------Model  table相关-------              */
 	@Getter
 	private Table t;//表结构对象
@@ -130,7 +127,7 @@ public final class ModelExampleSql {
 		}
 	}
 
-	public ModelExampleSql.Criteria createCriteria(){
+	public ModelExample.Criteria createCriteria(){
 			 return new Criteria();
 	}
 
@@ -235,7 +232,7 @@ public final class ModelExampleSql {
 	  }
 
 	  /**对 in 的支持*/
-	  private String inValuesJoin(Collection<?> values){
+	  public String inValuesJoin(Collection<?> values){
 		  if(values == null || CollUtil.isEmpty(values)){ return null; }
 
 		  StringBuilder sb = new StringBuilder("(");
@@ -398,7 +395,7 @@ public final class ModelExampleSql {
 	 *	 默认exists为true
 	 * @param entityClass
 	 */
-	public ModelExampleSql(Class<?> entityClass) {
+	public ModelExample(Class<?> entityClass) {
 		this(entityClass,true,false);
 	}
 
@@ -408,7 +405,7 @@ public final class ModelExampleSql {
 	 * @param entityClass
 	 * @param exists      - true时，如果字段不存在就抛出异常，false时，如果不存在就不使用该字段的条件
 	 */
-	public ModelExampleSql(Class<?> entityClass, boolean exists) {
+	public ModelExample(Class<?> entityClass, boolean exists) {
 		this(entityClass,exists,false);
 	}
 
@@ -419,7 +416,7 @@ public final class ModelExampleSql {
 	 * @param exists      - true时，如果字段不存在就抛出异常，false时，如果不存在就不使用该字段的条件
 	 * @param notNull     - true时，如果值为空，就会抛出异常，false时，如果为空就不使用该字段的条件
 	 */
-	public ModelExampleSql(Class<?> clazz, boolean exists, boolean notNull){
+	public ModelExample(Class<?> clazz, boolean exists, boolean notNull){
 		this.classToTable(clazz);
 		this.exists = exists;
 		this.notNull = notNull;
@@ -447,7 +444,7 @@ public final class ModelExampleSql {
 	 * @param properties 返回字段
 	 * @return
 	 */
-	public ModelExampleSql selectProperties(String... properties) {
+	public ModelExample selectProperties(String... properties) {
 		if (properties != null && properties.length > 0) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < properties.length; i++) {
@@ -469,7 +466,7 @@ public final class ModelExampleSql {
 	 * @param propertie
 	 * @return
 	 */
-	public ModelExampleSql userDefinedProperties(String propertie){
+	public ModelExample userDefinedProperties(String propertie){
 		 if(StrKit.isBlank(propertie)){
 		 	 throw new RuntimeException(this.getClass()+" Method userDefinedProperties parameter java.lang.String propertie not null");
 		 }
@@ -485,7 +482,7 @@ public final class ModelExampleSql {
 	 *   指定返回多少行数据 指定前几行数据
 	 * @param size
 	 */
-	public ModelExampleSql findLimit(int size){
+	public ModelExample findLimit(int size){
 		return this.findLimit(0,size);
 	}
 
@@ -493,7 +490,7 @@ public final class ModelExampleSql {
 	 *   指定返回多少行数据 从 指定位置1开始到指定位置2结束
 	 * @param size
 	 */
-	public ModelExampleSql findLimit(int index,int size){
+	public ModelExample findLimit(int index,int size){
 		this.findLimit = Limit + index+D_1+size;
 		return this;
 	}
