@@ -1,5 +1,7 @@
 package cn.listenerhe.core.sql;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import com.jfinal.kit.StrKit;
@@ -158,7 +160,7 @@ public abstract class BaseDb<M extends Model<M>>{
                  sb.append(ModelExample.D_1);
             }
         }
-        return dao.findFirst(getSelet(example)+getFrom()+WHERE+sb.toString(),primaryKeys);
+        return dao.findFirst(getSelet(example)+getFrom()+WHERE+generateKeySql(primaryKeys),primaryKeys);
     }
 
     /***
@@ -185,9 +187,19 @@ public abstract class BaseDb<M extends Model<M>>{
      * @param ids
      * @return
      */
-    public long delByIds(Object... ids){
+    public long delByInIds(Object... ids){
         return Db.delete(StrUtil.format(DELETE,example.getTableName())
                 +WHERE+example.getPrimaryKey()[0]+ModelExample.IN+example.createCriteria().inValuesJoin(Arrays.asList(ids)),ids);
+    }
+
+    /***
+     *   根据复合主键删除
+     * @param ids
+     * @return
+     */
+    public long delByIds(Object... ids){
+        return Db.delete(StrUtil.format(DELETE,example.getTableName())
+                +WHERE+generateKeySql(ids),ids);
     }
 
 
@@ -232,6 +244,17 @@ public abstract class BaseDb<M extends Model<M>>{
     public long updateByExample(M model,ModelExample modelExample){
          existsTable(modelExample);
        return  Db.update(StrUtil.format(UPDATE,example.getTableName())+generateSetSql(model,false)+WHERE+modelExample.getSql(),modelExample.getValues());
+    }
+
+    /***
+     *  根据复合主键更新
+     * @param model
+     * @param ids
+     * @return
+     */
+    public long updateByIds(M model,Object... ids){
+        if(ArrayUtil.isEmpty(ids) || null == model){return 0L;}
+        return Db.update(StrUtil.format(UPDATE,example.getTableName())+generateSetSql(model,false)+WHERE+generateKeySql(ids),ids);
     }
 
     /***
@@ -302,7 +325,34 @@ public abstract class BaseDb<M extends Model<M>>{
     }
 
 
+    /***
+     *  对多主键的支持
+     * @param primaryKeys 主键值
+     * @return
+     */
+    private String generateKeySql(Object... primaryKeys){
+        if(ArrayUtil.isEmpty(primaryKeys)){
+             throw new RuntimeException(this.getClass()+" primaryKeys not null or empty");
+        }
+        if(primaryKeys.length > example.getPrimaryKey().length){
+            throw new RuntimeException(this.getClass()+" primaryKeys length not greater "+example.getTableName()+" primaryKeys length");
+        }
 
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < primaryKeys.length; i++) {
+            sb.append(example.getPrimaryKey()[i]).append(ModelExample.EQ).append(ModelExample.placeholder);
+            if(i < primaryKeys.length-1){
+                sb.append(ModelExample.D_1);
+            }
+        }
+       return  sb.toString();
+    }
+
+    /***
+     *  生成 == 参数
+     * @param record
+     * @return
+     */
     private String generateSql(Record record){
          if(null == record){
             throw new RuntimeException(this.getClass()+" Record not null");

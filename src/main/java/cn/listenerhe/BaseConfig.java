@@ -38,7 +38,7 @@ public class BaseConfig extends JFinalConfig{
         /**
          * 特别注意：IDEA 之下建议的启动方式，仅比 eclipse 之下少了最后一个参数
          */
-        JFinal.start("src/main/webapp", 9188, "/",5);
+        JFinal.start("src/main/webapp", 9088, "/",5);
     }
 
 
