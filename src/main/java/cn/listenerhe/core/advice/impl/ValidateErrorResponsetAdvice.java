@@ -1,6 +1,6 @@
 package cn.listenerhe.core.advice.impl;
 
-import cn.listenerhe.core.advice.IErrorRequestResponsetAdvice;
+import cn.listenerhe.core.advice.IErrorRequestResponseAdvice;
 import cn.listenerhe.core.result.Code;
 import cn.listenerhe.core.result.ErrorResult;
 import cn.listenerhe.core.validation.ValidateException;
@@ -13,7 +13,7 @@ import com.jfinal.render.RenderManager;
  * @Date: 2018/12/27 13:56
  * @Description:
  */
-public class ValidateErrorResponsetAdvice implements IErrorRequestResponsetAdvice<ValidateException,JsonRender> {
+public class ValidateErrorResponsetAdvice implements IErrorRequestResponseAdvice<ValidateException,JsonRender> {
     /**
      * 验证支持
      *

@@ -2,7 +2,7 @@ package cn.listenerhe.core.handler;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.listenerhe.core.advice.IErrorRequestResponsetAdvice;
+import cn.listenerhe.core.advice.IErrorRequestResponseAdvice;
 import cn.listenerhe.core.advice.IResponseAdvice;
 import cn.listenerhe.core.advice.impl.ResponseAdviceExceptor;
 import cn.listenerhe.core.result.Code;
@@ -33,14 +33,14 @@ public class ActionHandlerAdivce extends ActionHandler {
     public static Map<Class<? extends Render>,List<? extends IResponseAdvice<? extends Render>>> responseAdviceMap = new ConcurrentHashMap();
 
     /**异常处理器*/
-    public static Map<Class<? extends Throwable>,IErrorRequestResponsetAdvice> errorAdviceMap = new ConcurrentHashMap<>();
+    public static Map<Class<? extends Throwable>,IErrorRequestResponseAdvice> errorAdviceMap = new ConcurrentHashMap<>();
 
     /***
      *  获取异常处理器
      * @param aClass
      * @return
      */
-    private List<IErrorRequestResponsetAdvice> getErrorAdvice(Class<? extends Throwable> aClass){
+    private List<IErrorRequestResponseAdvice> getErrorAdvice(Class<? extends Throwable> aClass){
         if(aClass == null){
             return null;
         }
@@ -63,7 +63,7 @@ public class ActionHandlerAdivce extends ActionHandler {
             }
         });
         if(CollUtil.isEmpty(sort)){return  null;}
-        List<IErrorRequestResponsetAdvice> advice = new ArrayList<>();
+        List<IErrorRequestResponseAdvice> advice = new ArrayList<>();
 
         sort.forEach(new Consumer<Class<? extends Throwable>>() {
             @Override
@@ -104,7 +104,7 @@ public class ActionHandlerAdivce extends ActionHandler {
                 log.warn(error);
             }
 
-            List<IErrorRequestResponsetAdvice> errorAdvice = getErrorAdvice(RenderException.class);
+            List<IErrorRequestResponseAdvice> errorAdvice = getErrorAdvice(RenderException.class);
             Render render = renderManager.getRenderFactory().getErrorRender(404).setContext(request, response);
             if(CollUtil.isEmpty(errorAdvice)){
                 render.render();
@@ -168,10 +168,10 @@ public class ActionHandlerAdivce extends ActionHandler {
         } catch (Exception e) {
             boolean temp = true;
             /**异常处理*/
-            List<IErrorRequestResponsetAdvice> errorAdvice = getErrorAdvice(e.getClass());
+            List<IErrorRequestResponseAdvice> errorAdvice = getErrorAdvice(e.getClass());
             if(CollUtil.isNotEmpty(errorAdvice)){
                 int code = e instanceof RenderException ?404:(e instanceof ActionException ?((ActionException)e).getErrorCode():500);
-                for (IErrorRequestResponsetAdvice iErrorRequestRequestAdvice : errorAdvice) {
+                for (IErrorRequestResponseAdvice iErrorRequestRequestAdvice : errorAdvice) {
                     if(iErrorRequestRequestAdvice.supports(e)){
                         Render render1 = iErrorRequestRequestAdvice.laterBodyWrite(e, renderManager, urlPara, action, code);
                         if(render1 != null){

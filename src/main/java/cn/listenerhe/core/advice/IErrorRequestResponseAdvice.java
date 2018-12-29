@@ -9,7 +9,7 @@ import com.jfinal.render.RenderManager;
  * @Date: 2018/12/27 12:40
  * @Description: 注意异常向下兼容
  */
-public interface IErrorRequestResponsetAdvice<T extends Throwable,E extends Render>{
+public interface IErrorRequestResponseAdvice<T extends Throwable,E extends Render>{
 
     /**验证支持*/
     boolean supports(T throwable);
