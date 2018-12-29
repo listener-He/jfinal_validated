@@ -44,6 +44,10 @@ public abstract class BaseDb<M extends Model<M>>{
     }
 
 
+    public ModelExample getExample(){
+         return new ModelExample(modelClass);
+    }
+
     /**
      *   无参构造器 实例当前calss 、table、dao、表名称
      */
