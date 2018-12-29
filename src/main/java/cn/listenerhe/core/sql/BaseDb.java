@@ -153,13 +153,7 @@ public abstract class BaseDb<M extends Model<M>>{
         if(primaryKeys.length > example.getPrimaryKey().length){
              throw new RuntimeException(this.getClass()+" method getByPrimaryKey java.lang.Object[][] primaryKeys length greater table primaryKeys length");
         }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < primaryKeys.length; i++) {
-            sb.append(example.getPrimaryKey()[i]).append(ModelExample.EQ).append(ModelExample.placeholder);
-            if(i < primaryKeys.length-1){
-                 sb.append(ModelExample.D_1);
-            }
-        }
+
         return dao.findFirst(getSelet(example)+getFrom()+WHERE+generateKeySql(primaryKeys),primaryKeys);
     }
 
