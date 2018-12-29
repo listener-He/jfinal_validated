@@ -5,7 +5,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.TypeUtil;
-import cn.listenerhe.core.advice.IErrorRequestRequestAdvice;
+import cn.listenerhe.core.advice.IErrorRequestResponsetAdvice;
 import cn.listenerhe.core.advice.IResponseAdvice;
 import cn.listenerhe.core.advice.impl.ResponseAdviceMapSort;
 import cn.listenerhe.core.handler.ActionHandlerAdivce;
@@ -84,7 +84,7 @@ public class RequestAdivcePlugin implements IPlugin {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Set<Class<?>> validates = ClassUtil.scanPackageBySuper("",IErrorRequestRequestAdvice.class);
+                Set<Class<?>> validates = ClassUtil.scanPackageBySuper("",IErrorRequestResponsetAdvice.class);
                 if(CollUtil.isNotEmpty(validates)){
                     for (Class<?> aClass : validates) {
                         Type t =aClass.getGenericInterfaces()[0];
@@ -97,7 +97,7 @@ public class RequestAdivcePlugin implements IPlugin {
                             if(ActionHandlerAdivce.errorAdviceMap.containsKey(aClass1)){
                                 throw new RuntimeException(ActionHandlerAdivce.class+"errorAdviceMap "+aClass1+" 已存在请勿重复配置扑捉.");
                             }
-                            ActionHandlerAdivce.errorAdviceMap.put(aClass1,(IErrorRequestRequestAdvice)aClass.newInstance());
+                            ActionHandlerAdivce.errorAdviceMap.put(aClass1,(IErrorRequestResponsetAdvice)aClass.newInstance());
                         } catch (InstantiationException e) {
                             e.printStackTrace();
                         } catch (IllegalAccessException e) {
